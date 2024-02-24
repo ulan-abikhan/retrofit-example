@@ -1,4 +1,4 @@
-package kz.udev.restapp
+package kz.udev.restapp.core.util
 
 object Constants {
 

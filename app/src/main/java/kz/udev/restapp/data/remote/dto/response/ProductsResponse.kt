@@ -1,4 +1,11 @@
-package kz.udev.restapp
+package kz.udev.restapp.data.remote.dto.response
+
+data class ProductsResponse(
+    val limit: Int,
+    val products: List<Product>,
+    val skip: Int,
+    val total: Int
+)
 
 data class Product(
     val brand: String,

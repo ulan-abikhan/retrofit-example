@@ -1,4 +1,4 @@
-package kz.udev.restapp
+package kz.udev.restapp.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.getValue
@@ -30,14 +31,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kz.udev.restapp.data.remote.dto.body.LoginBody
+import kz.udev.restapp.data.remote.retofit.RetrofitInstance
+import kz.udev.restapp.ui.components.TabLayout
 import kz.udev.restapp.ui.theme.RestAppTheme
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.lang.Exception
 
 class MainActivity : ComponentActivity() {
 
@@ -45,17 +44,20 @@ class MainActivity : ComponentActivity() {
     private val price = mutableStateOf("")
     private val imgUrl = mutableStateOf("")
 
-    private var retrofitInstance: Retrofit? = null
-    private var dummyService: DummyService? = null
+    private var retrofitInstance: RetrofitInstance? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        retrofitInstance = RetrofitInstance()
+
         setContent {
             RestAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     var productId by remember {
                         mutableStateOf("")
                     }
@@ -124,6 +126,8 @@ class MainActivity : ComponentActivity() {
                                 contentDescription = null
                             )
                         }
+
+                        TabLayout()
                     }
                 }
             }
@@ -131,43 +135,18 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    private fun dummyService(): DummyService {
-        if (retrofitInstance == null || dummyService == null) {
-
-            val logging = HttpLoggingInterceptor()
-
-            logging.level = HttpLoggingInterceptor.Level.BODY
-
-            val client = OkHttpClient
-                .Builder()
-                .addInterceptor(logging)
-                .build()
-
-            retrofitInstance = Retrofit
-                .Builder()
-                .client(client)
-                .baseUrl(Constants.dummyJsonBaseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            dummyService = retrofitInstance?.create(DummyService::class.java)
-        }
-
-        return dummyService!!
-    }
-
     @OptIn(DelicateCoroutinesApi::class)
     private fun login(login: String, password: String) {
-        val dummyS = dummyService()
+        val dummyS = retrofitInstance?.dummyService
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val response = dummyS.login(LoginBody(login, password))
+                val response = dummyS?.login(LoginBody(login, password))
 
                 withContext(Dispatchers.Main) {
-                    title.value = response.firstName
-                    price.value = response.token
-                    imgUrl.value = response.image
+                    title.value = response?.firstName.toString()
+                    price.value = response?.token.toString()
+                    imgUrl.value = response?.image.toString()
                 }
 
             } catch (e: IOException) {

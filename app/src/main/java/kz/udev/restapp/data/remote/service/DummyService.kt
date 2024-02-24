@@ -1,5 +1,9 @@
-package kz.udev.restapp
+package kz.udev.restapp.data.remote.service
 
+import kz.udev.restapp.data.remote.dto.response.Product
+import kz.udev.restapp.data.remote.dto.response.ProductsResponse
+import kz.udev.restapp.data.remote.dto.body.LoginBody
+import kz.udev.restapp.data.remote.dto.body.LoginResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header

@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -35,21 +37,20 @@ import kz.udev.restapp.data.remote.dto.body.LoginBody
 import kz.udev.restapp.data.remote.retofit.RetrofitInstance
 import kz.udev.restapp.ui.components.TabLayout
 import kz.udev.restapp.ui.theme.RestAppTheme
+import kz.udev.restapp.ui.viewmodel.LoginViewModel
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val title = mutableStateOf("")
-    private val price = mutableStateOf("")
-    private val imgUrl = mutableStateOf("")
 
-    private var retrofitInstance: RetrofitInstance? = null
+    @Inject
+    lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        retrofitInstance = RetrofitInstance()
 
         setContent {
             RestAppTheme {
@@ -58,14 +59,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    var productId by remember {
-                        mutableStateOf("")
-                    }
-
-                    var password by remember {
-                        mutableStateOf("")
-                    }
-
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,9 +66,8 @@ class MainActivity : ComponentActivity() {
                     ) {
 
                         TextField(
-                            value = productId, onValueChange = {
-                                productId = it
-                            },
+                            value = loginViewModel.username.value,
+                            onValueChange = loginViewModel::onTypeUsername,
                             maxLines = 1,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
@@ -93,10 +85,8 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(10.dp))
 
                         TextField(
-                            value = password,
-                            onValueChange = {
-                                password = it
-                            },
+                            value = loginViewModel.password.value,
+                            onValueChange = loginViewModel::onTypePassword,
                             maxLines = 1,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
@@ -105,29 +95,28 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Button(onClick = {
-                            if (productId.isNotEmpty()) {
-                                login(productId, password)
+                            if (loginViewModel.username.value.isNotEmpty()) {
+                                loginViewModel.login()
                             }
                         }) {
                             Text(text = "Click")
                         }
 
-                        Text(text = title.value)
+                        loginViewModel.loginState.collectAsState().value.user?.let {
+                            Text(text = it.firstName)
 
-                        Spacer(modifier = Modifier.height(5.dp))
+                            Spacer(modifier = Modifier.height(5.dp))
 
-                        Text(text = price.value)
+                            Text(text = it.token)
 
-                        Spacer(modifier = Modifier.height(5.dp))
+                            Spacer(modifier = Modifier.height(5.dp))
 
-                        if (imgUrl.value.isNotEmpty()) {
                             AsyncImage(
-                                model = imgUrl.value,
+                                model = it.image,
                                 contentDescription = null
                             )
                         }
 
-                        TabLayout()
                     }
                 }
             }
@@ -135,27 +124,27 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun login(login: String, password: String) {
-        val dummyS = retrofitInstance?.dummyService
-
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                val response = dummyS?.login(LoginBody(login, password))
-
-                withContext(Dispatchers.Main) {
-                    title.value = response?.firstName.toString()
-                    price.value = response?.token.toString()
-                    imgUrl.value = response?.image.toString()
-                }
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } catch (e: HttpException) {
-                e.printStackTrace()
-            }
-        }
-    }
+//    @OptIn(DelicateCoroutinesApi::class)
+//    private fun login(login: String, password: String) {
+//        val dummyS = retrofitInstance?.dummyService
+//
+//        GlobalScope.launch(Dispatchers.IO) {
+//            try {
+//                val response = dummyS?.login(LoginBody(login, password))
+//
+//                withContext(Dispatchers.Main) {
+//                    title.value = response?.firstName.toString()
+//                    price.value = response?.token.toString()
+//                    imgUrl.value = response?.image.toString()
+//                }
+//
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//            } catch (e: HttpException) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
 //    @OptIn(DelicateCoroutinesApi::class)
 //    private fun searchProduct(search: String) {

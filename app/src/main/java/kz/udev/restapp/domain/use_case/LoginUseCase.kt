@@ -6,12 +6,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kz.udev.restapp.core.util.Resource
 import kz.udev.restapp.core.util.ResourceError
-import kz.udev.restapp.data.repository.DummyRepository
 import kz.udev.restapp.domain.model.User
+import kz.udev.restapp.domain.repository.DummyRepository
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class LoginUseCase(
+class LoginUseCase @Inject constructor(
     private val dummyRepository: DummyRepository
 ) {
     operator fun invoke(username: String, password: String): Flow<Resource<User>> = flow {

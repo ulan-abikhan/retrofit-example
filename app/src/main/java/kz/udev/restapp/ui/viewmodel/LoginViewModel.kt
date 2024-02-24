@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,11 +24,19 @@ class LoginViewModel(
     private val _username = mutableStateOf("")
     val username: State<String> = _username
 
-    private val _password = MutableStateFlow("")
-    val password: StateFlow<String> = _password.asStateFlow()
+    private val _password = mutableStateOf("")
+    val password: State<String> = _password
+
+
+    fun onTypeUsername(value: String) {
+        _username.value = value
+    }
+
+    fun onTypePassword(value: String) {
+        _password.value = value
+    }
 
     fun login() {
-
         loginUseCase(_username.value, _password.value).onEach { res ->
             when (res) {
                 is Resource.Error -> {

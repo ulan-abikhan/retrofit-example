@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -32,7 +33,7 @@ fun LoginScreen(
 
     LaunchedEffect(key1 = loginState) {
         if (loginState.user != null) {
-            onNext()
+//            onNext()
         }
     }
 
@@ -77,7 +78,15 @@ fun LoginScreen(
             Text(text = "Click")
         }
 
-        loginViewModel.loginState.collectAsState().value.user?.let {
+        if (loginState.loading) {
+            CircularProgressIndicator()
+        }
+
+        if (loginState.error != null) {
+            Text(text = loginState.error)
+        }
+
+        loginState.user?.let {
             Text(text = it.firstName)
 
             Spacer(modifier = Modifier.height(5.dp))

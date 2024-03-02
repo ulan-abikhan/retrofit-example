@@ -48,17 +48,6 @@ object AppModule {
         return DummyRepositoryImpl(dummyService)
     }
 
-    @Provides
-    @Singleton
-    fun provideLoginViewModel(loginUseCase: LoginUseCase) : LoginViewModel {
-        return LoginViewModel(loginUseCase)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLoginUseCase(dummyRepository: DummyRepository): LoginUseCase {
-        return LoginUseCase(dummyRepository)
-    }
 
 
 }

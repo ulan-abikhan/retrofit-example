@@ -13,8 +13,10 @@ import kotlinx.coroutines.flow.onEach
 import kz.udev.restapp.core.util.Resource
 import kz.udev.restapp.domain.use_case.LoginUseCase
 import kz.udev.restapp.ui.state.LoginState
+import javax.inject.Inject
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
@@ -26,7 +28,6 @@ class LoginViewModel(
 
     private val _password = mutableStateOf("")
     val password: State<String> = _password
-
 
     fun onTypeUsername(value: String) {
         _username.value = value
